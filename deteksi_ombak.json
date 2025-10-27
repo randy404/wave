@@ -1,0 +1,155 @@
+[
+    {
+        "timestamp": "2025-09-18T14:02:43.900912",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:43",
+        "frame": 30,
+        "puncak_ombak_y": 352,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 3
+    },
+    {
+        "timestamp": "2025-09-18T14:02:44.260699",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:44",
+        "frame": 60,
+        "puncak_ombak_y": 256,
+        "status_ombak": "0,5 Meter (Rendah)",
+        "jumlah_garis_terdeteksi": 9
+    },
+    {
+        "timestamp": "2025-09-18T14:02:44.659184",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:44",
+        "frame": 90,
+        "puncak_ombak_y": 258,
+        "status_ombak": "0,5 Meter (Rendah)",
+        "jumlah_garis_terdeteksi": 6
+    },
+    {
+        "timestamp": "2025-09-18T14:02:45.045696",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:45",
+        "frame": 120,
+        "puncak_ombak_y": 263,
+        "status_ombak": "0,5 Meter (Rendah)",
+        "jumlah_garis_terdeteksi": 8
+    },
+    {
+        "timestamp": "2025-09-18T14:02:45.364480",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:45",
+        "frame": 150,
+        "puncak_ombak_y": 268,
+        "status_ombak": "0,5 Meter (Rendah)",
+        "jumlah_garis_terdeteksi": 6
+    },
+    {
+        "timestamp": "2025-09-18T14:02:45.573716",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:45",
+        "frame": 180,
+        "puncak_ombak_y": 275,
+        "status_ombak": "0,5 Meter (Rendah)",
+        "jumlah_garis_terdeteksi": 6
+    },
+    {
+        "timestamp": "2025-09-18T14:02:45.884855",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:45",
+        "frame": 210,
+        "puncak_ombak_y": 287,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 4
+    },
+    {
+        "timestamp": "2025-09-18T14:02:46.151493",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:46",
+        "frame": 240,
+        "puncak_ombak_y": 311,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 2
+    },
+    {
+        "timestamp": "2025-09-18T14:02:46.854584",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:46",
+        "frame": 270,
+        "puncak_ombak_y": 350,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 6
+    },
+    {
+        "timestamp": "2025-09-18T14:02:47.067675",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:47",
+        "frame": 300,
+        "puncak_ombak_y": 350,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 4
+    },
+    {
+        "timestamp": "2025-09-18T14:02:47.258738",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:47",
+        "frame": 330,
+        "puncak_ombak_y": 349,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 4
+    },
+    {
+        "timestamp": "2025-09-18T14:02:47.504723",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:47",
+        "frame": 360,
+        "puncak_ombak_y": 350,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 4
+    },
+    {
+        "timestamp": "2025-09-18T14:02:47.774953",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:47",
+        "frame": 390,
+        "puncak_ombak_y": 350,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 3
+    },
+    {
+        "timestamp": "2025-09-18T14:02:48.309808",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:48",
+        "frame": 420,
+        "puncak_ombak_y": 349,
+        "status_ombak": "Tenang",
+        "jumlah_garis_terdeteksi": 3
+    },
+    {
+        "timestamp": "2025-09-18T14:02:48.505907",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:48",
+        "frame": 450,
+        "puncak_ombak_y": 240,
+        "status_ombak": "1,25 Meter (Sedang)",
+        "jumlah_garis_terdeteksi": 6
+    },
+    {
+        "timestamp": "2025-09-18T14:02:48.766793",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:48",
+        "frame": 480,
+        "puncak_ombak_y": 238,
+        "status_ombak": "1,25 Meter (Sedang)",
+        "jumlah_garis_terdeteksi": 7
+    },
+    {
+        "timestamp": "2025-09-18T14:02:49.084695",
+        "tanggal": "2025-09-18",
+        "jam": "14:02:49",
+        "frame": 510,
+        "puncak_ombak_y": 239,
+        "status_ombak": "1,25 Meter (Sedang)",
+        "jumlah_garis_terdeteksi": 5
+    }
+]

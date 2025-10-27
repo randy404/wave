@@ -1,0 +1,39 @@
+# Konfigurasi Twilio untuk WhatsApp, SMS, dan Tsunami Alert
+# Daftar di https://console.twilio.com untuk mendapatkan kredensial
+
+# Kredensial Twilio (Wajib untuk WA, SMS, dan Tsunami Alert)
+TWILIO_ACCOUNT_SID=your_account_sid_here
+TWILIO_AUTH_TOKEN=your_auth_token_here
+
+# WhatsApp Configuration
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+WHATSAPP_TO=whatsapp:+6281234567890
+
+# SMS Configuration  
+TWILIO_MESSAGING_SERVICE_SID=your_messaging_service_sid_here
+TWILIO_SMS_FROM=+12025550123
+SMS_TO=+6281234567890
+
+# Tsunami Alert Configuration (SMS)
+# Gunakan nomor telepon Twilio yang sudah terdaftar di akun Anda
+# Pastikan nomor ini sesuai dengan akun TWILIO_ACCOUNT_SID di atas
+TWILIO_TSUNAMI_FROM=+12025550123
+TSUNAMI_ALERT_TO=+6281234567890
+
+# Path file CSV (opsional)
+OMBAK_CSV_PATH=deteksi_ombak.csv
+
+# RTSP URL (opsional)
+RTSP_URL=rtsp://user:pass@ip:8554/Streaming/Channels/101
+
+# Camera Location Configuration
+# Lokasi kamera untuk tsunami alert (opsional)
+CAMERA_LOCATION=Pantai Kuta, Bali
+
+# Earthquake Monitoring Configuration
+# Konfigurasi monitoring gempa BMKG (opsional)
+EARTHQUAKE_MONITORING_ENABLED=false
+EARTHQUAKE_MAGNITUDE_THRESHOLD=5.0
+EARTHQUAKE_TSUNAMI_THRESHOLD=6.0
+EARTHQUAKE_CHECK_INTERVAL=300
+
