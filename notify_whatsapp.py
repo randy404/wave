@@ -1,19 +1,31 @@
 # notify_whatsapp.py
 # Helper to send WhatsApp via Twilio Sandbox/Business
-# Reads credentials from .env / environment variables.
+# Reads credentials from Streamlit secrets or .env / environment variables.
 
 import os
 from typing import Optional, Iterable, Union, List
 
+# Try loading from dotenv first
 try:
     from dotenv import load_dotenv
     load_dotenv()  # load .env if present
 except Exception:
     pass
 
+# Try loading from Streamlit secrets (for Streamlit Cloud)
+try:
+    import streamlit as st
+    if hasattr(st, 'secrets'):
+        # Override environment variables with Streamlit secrets if available
+        for key in st.secrets:
+            if key not in os.environ or not os.environ[key]:
+                os.environ[key] = st.secrets[key]
+except Exception:
+    pass
+
 from twilio.rest import Client
 
-# Required (see .env below)
+# Required (see .env or Streamlit secrets)
 ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 AUTH_TOKEN  = os.getenv("TWILIO_AUTH_TOKEN")
 
@@ -25,7 +37,7 @@ FROM = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
 TO_DEFAULT = os.getenv("WHATSAPP_TO", "").strip()
 
 if not ACCOUNT_SID or not AUTH_TOKEN:
-    raise RuntimeError("TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN are not set.")
+    raise RuntimeError("TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN are not set. Please configure in Streamlit secrets or .env file.")
 
 _client = Client(ACCOUNT_SID, AUTH_TOKEN)
 

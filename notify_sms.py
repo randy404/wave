@@ -4,12 +4,25 @@
 # - Prefer "TWILIO_MESSAGING_SERVICE_SID" if available.
 # - Fallback to "TWILIO_SMS_FROM" (Twilio number in E.164 format, e.g., +12025550123).
 # - Trial accounts: only verified numbers can receive SMS.
+# Reads credentials from Streamlit secrets or .env / environment variables.
 import os
 from typing import Optional, Iterable, Union, List
 
+# Try loading from dotenv first
 try:
     from dotenv import load_dotenv
     load_dotenv()
+except Exception:
+    pass
+
+# Try loading from Streamlit secrets (for Streamlit Cloud)
+try:
+    import streamlit as st
+    if hasattr(st, 'secrets'):
+        # Override environment variables with Streamlit secrets if available
+        for key in st.secrets:
+            if key not in os.environ or not os.environ[key]:
+                os.environ[key] = st.secrets[key]
 except Exception:
     pass
 
@@ -22,7 +35,7 @@ MSID = os.getenv("TWILIO_MESSAGING_SERVICE_SID")  # disarankan untuk produksi
 SMS_FROM = os.getenv("TWILIO_SMS_FROM")           # fallback: nomor Twilio (E.164, mis. +1415...)
 
 if not ACCOUNT_SID or not AUTH_TOKEN:
-    raise RuntimeError("TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN belum di-set.")
+    raise RuntimeError("TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN belum di-set. Please configure in Streamlit secrets or .env file.")
 
 _client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
