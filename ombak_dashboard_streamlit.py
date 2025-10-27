@@ -7,7 +7,7 @@
 # - Tab "📈 Log & Grafik / Laporan (PDF)"
 # - Persistent Configuration dengan auto-save
 
-import os, io, time, csv, cv2, numpy as np, pandas as pd, streamlit as st
+import os, io, time, csv, cv2, numpy as np, pandas as pd, streamlit as st, glob, tempfile
 from datetime import datetime, date
 from typing import Tuple
 from dashboard_config import load_config, save_config
@@ -196,28 +196,91 @@ st.sidebar.header("📄 Data")
 csv_path = st.sidebar.text_input("CSV log path", value=config.get("csv_path", os.getenv("OMBAK_CSV_PATH","deteksi_ombak.csv")))
 sample_every_sec = st.sidebar.number_input("Log write interval (seconds)", 1, 60, config.get("sample_every_sec", 2))
 
-st.sidebar.header("🎥 Video Source (RTSP Only)")
-video_source_type = "RTSP/HTTP Stream"
+st.sidebar.header("🎥 Video Source")
 
 # Inisialisasi variabel
 rtsp_url = ""
 video_file = ""
-available_videos = []
+uploaded_video_path = None
 
-# RTSP/HTTP Stream (satu-satunya mode)
-if "rtsp_url_session" not in st.session_state:
-    st.session_state.rtsp_url_session = config.get("rtsp_url", os.getenv("RTSP_URL",""))
+# Mode selector
+video_source_type = st.sidebar.radio(
+    "Select Source Type:",
+    ["📡 RTSP/HTTP Stream", "📁 Video File"],
+    index=0,
+    help="Choose between live RTSP stream or video file"
+)
 
-rtsp_url_input = st.sidebar.text_input("RTSP / HTTP URL", 
-    value=st.session_state.rtsp_url_session,
-    help="Example: rtsp://admin:admin@192.168.1.3:8554/Streaming/Channels/101")
+if video_source_type == "📡 RTSP/HTTP Stream":
+    # RTSP Stream mode
+    if "rtsp_url_session" not in st.session_state:
+        st.session_state.rtsp_url_session = config.get("rtsp_url", os.getenv("RTSP_URL",""))
+    
+    rtsp_url_input = st.sidebar.text_input("RTSP / HTTP URL", 
+        value=st.session_state.rtsp_url_session,
+        help="Example: rtsp://admin:admin@192.168.1.3:8554/Streaming/Channels/101")
+    
+    # Update session state jika ada perubahan
+    if rtsp_url_input != st.session_state.rtsp_url_session:
+        st.session_state.rtsp_url_session = rtsp_url_input
+    
+    rtsp_url = st.session_state.rtsp_url_session
+    video_file = ""
+    
+    if rtsp_url:
+        st.sidebar.success(f"🌐 CCTV Stream berjalan otomatis: {rtsp_url[:50]}...")
+    else:
+        st.sidebar.info("📝 Masukkan RTSP URL dan klik 'Start'")
 
-# Update session state jika ada perubahan
-if rtsp_url_input != st.session_state.rtsp_url_session:
-    st.session_state.rtsp_url_session = rtsp_url_input
-
-rtsp_url = st.session_state.rtsp_url_session
-video_file = ""
+else:
+    # Video File mode
+    st.sidebar.markdown("### 📂 Choose Video Source:")
+    
+    # Option 1: Demo videos dropdown
+    available_videos = glob.glob("*.mp4") + glob.glob("*.avi")
+    
+    if available_videos:
+        st.sidebar.markdown("**Option 1: Demo Videos**")
+        selected_demo = st.sidebar.selectbox(
+            "Select demo video:",
+            [""] + available_videos,
+            help="Pre-loaded demo videos in repository"
+        )
+        if selected_demo:
+            video_file = selected_demo
+            st.sidebar.success(f"✅ Selected: {selected_demo}")
+    
+    # Option 2: Upload video
+    st.sidebar.markdown("**Option 2: Upload Your Own**")
+    uploaded_file = st.sidebar.file_uploader(
+        "Upload video file",
+        type=["mp4", "avi", "mov", "mkv"],
+        help="Upload your own video for wave detection"
+    )
+    
+    if uploaded_file is not None:
+        # Save uploaded file temporarily
+        tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+        tfile.write(uploaded_file.read())
+        uploaded_video_path = tfile.name
+        video_file = uploaded_video_path
+        st.sidebar.success(f"✅ Uploaded: {uploaded_file.name}")
+    
+    # Option 3: Manual path input (for local testing)
+    st.sidebar.markdown("**Option 3: File Path**")
+    manual_path = st.sidebar.text_input(
+        "Or enter video file path:",
+        placeholder="C:/path/to/video.mp4",
+        help="Direct file path (for local development)"
+    )
+    if manual_path and os.path.exists(manual_path):
+        video_file = manual_path
+        st.sidebar.success(f"✅ Path: {manual_path}")
+    
+    rtsp_url = ""
+    
+    if not video_file:
+        st.sidebar.warning("⚠️ Please select or upload a video file")
 
 resize_width = st.sidebar.number_input("Resize width (px, 0 = original)", 0, 3840, config.get("resize_width", 960), step=10)
 
@@ -785,29 +848,44 @@ with TAB_LIVE:
     c1,c2,_ = st.columns([1,1,6])
     with c1: start_btn = st.button("▶️ Start", key="btn_start_stream")
     with c2: stop_btn  = st.button("⏹ Stop", key="btn_stop_stream")
-    if "running" not in st.session_state: 
-        # Auto-start jika ada RTSP URL yang valid
-        has_valid_rtsp = bool(rtsp_url and rtsp_url.strip())
-        st.session_state.running = has_valid_rtsp
     
-    if start_btn and rtsp_url: 
-        st.session_state.running = True
-        st.rerun()  # Refresh untuk mulai video
-    if stop_btn: st.session_state.running = False
+    if "running" not in st.session_state: 
+        # Auto-start jika ada RTSP URL atau video file yang valid
+        has_valid_rtsp = bool(rtsp_url and rtsp_url.strip())
+        has_valid_video = bool(video_file and os.path.exists(video_file))
+        st.session_state.running = has_valid_rtsp or has_valid_video
+    
+    # Handle start button - works for both RTSP and video file
+    if start_btn:
+        if rtsp_url or video_file:
+            st.session_state.running = True
+            st.rerun()  # Refresh untuk mulai video
+        else:
+            st.error("❌ Please select RTSP URL or video file first!")
+    
+    if stop_btn: 
+        st.session_state.running = False
 
     frame_holder = st.empty(); info_holder = st.empty()
     
-    # Tampilkan status auto-start
-    if st.session_state.running and rtsp_url:
-        st.success(f"🎥 CCTV Stream berjalan otomatis: {rtsp_url}")
-    elif st.session_state.running and video_file:
-        st.success(f"🎬 Video '{video_file}' berjalan otomatis!")
-    elif video_source_type == "RTSP/HTTP Stream" and rtsp_url and not st.session_state.running:
-        st.info(f"🔄 Mencoba connecting ke RTSP: {rtsp_url}")
-    elif video_source_type == "RTSP/HTTP Stream" and not rtsp_url:
-        st.warning("❌ Masukkan RTSP URL untuk auto-start CCTV")
-    elif len(available_videos) > 0:
-        st.info(f"📝 Video File mode: Pilih '{video_file}' dan klik Start untuk testing.")
+    # Tampilkan status berdasarkan source type
+    if st.session_state.running:
+        if rtsp_url:
+            st.success(f"🎥 CCTV Stream berjalan: {rtsp_url[:60]}...")
+        elif video_file:
+            video_name = os.path.basename(video_file) if len(video_file) > 50 else video_file
+            st.success(f"🎬 Video berjalan: {video_name}")
+    else:
+        if video_source_type == "📡 RTSP/HTTP Stream":
+            if rtsp_url:
+                st.info(f"⏸️ RTSP ready. Klik 'Start' untuk memulai: {rtsp_url[:50]}...")
+            else:
+                st.warning("⚠️ Masukkan RTSP URL di sidebar untuk mulai")
+        else:  # Video File mode
+            if video_file:
+                st.info(f"⏸️ Video ready. Klik 'Start' untuk memulai deteksi")
+            else:
+                st.warning("⚠️ Pilih atau upload video di sidebar untuk mulai")
 
     # Initialize session state for tracking
     if "last_log" not in st.session_state: st.session_state.last_log = 0.0
@@ -821,14 +899,14 @@ with TAB_LIVE:
     source_name = ""
     
     if st.session_state.running and rtsp_url:
-        # Gunakan smart connection dengan auto-retry
+        # Gunakan smart connection dengan auto-retry untuk RTSP
         cap = smart_rtsp_connect(rtsp_url, max_retries=3, timeout=10)
         if cap is None:
             # Show enhanced error message dengan diagnosa
             show_enhanced_error_message(rtsp_url)
             st.session_state.running = False
         else:
-            source_type = "Stream"
+            source_type = "RTSP Stream"
             source_name = rtsp_url
             
             # Initialize connection monitoring dan detection variables
@@ -843,6 +921,32 @@ with TAB_LIVE:
             if not hasattr(st.session_state, 'last_color'):
                 st.session_state.last_color = (0,255,255)
     
+    elif st.session_state.running and video_file:
+        # Video file mode
+        if os.path.exists(video_file):
+            cap = cv2.VideoCapture(video_file)
+            if cap is None or not cap.isOpened():
+                st.error(f"❌ Cannot open video file: {video_file}")
+                st.session_state.running = False
+            else:
+                source_type = "Video File"
+                source_name = os.path.basename(video_file)
+                
+                # Initialize detection variables
+                if not hasattr(st.session_state, 'consecutive_failures'):
+                    st.session_state.consecutive_failures = 0
+                if not hasattr(st.session_state, 'last_frame_time'):
+                    st.session_state.last_frame_time = time.time()
+                if not hasattr(st.session_state, 'last_peak_y'):
+                    st.session_state.last_peak_y = 500
+                if not hasattr(st.session_state, 'last_status'):
+                    st.session_state.last_status = "Sedang"
+                if not hasattr(st.session_state, 'last_color'):
+                    st.session_state.last_color = (0,255,255)
+        else:
+            st.error(f"❌ Video file not found: {video_file}")
+            st.session_state.running = False
+    
     
     if cap and cap.isOpened():
         if resize_width>0: cap.set(cv2.CAP_PROP_FRAME_WIDTH, resize_width)
@@ -856,14 +960,32 @@ with TAB_LIVE:
             if not ok or frame is None:
                 current_time = time.time()
                 
-                # Initialize last_successful_frame jika belum ada
-                if not hasattr(st.session_state, 'last_successful_frame'):
-                    st.session_state.last_successful_frame = current_time
+                # Handle video file end vs RTSP connection issue
+                if video_file:
+                    # Video file reached end - loop back or stop
+                    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                    current_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+                    
+                    if current_frame >= frame_count - 1:
+                        # End of video - loop back to beginning
+                        st.info("🔄 Video ended. Looping back to start...")
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                        time.sleep(0.5)
+                        continue
+                    else:
+                        # Error reading frame
+                        st.error("❌ Error reading video frame")
+                        break
                 
-                # Update last successful frame time untuk hitung downtime
-                minutes_without_frame = (current_time - st.session_state.last_successful_frame) / 60
-                
-                if rtsp_url:
+                elif rtsp_url:
+                    # RTSP stream - handle reconnection
+                    # Initialize last_successful_frame jika belum ada
+                    if not hasattr(st.session_state, 'last_successful_frame'):
+                        st.session_state.last_successful_frame = current_time
+                    
+                    # Update last successful frame time untuk hitung downtime
+                    minutes_without_frame = (current_time - st.session_state.last_successful_frame) / 60
+                    
                     # Hanya reconnect jika sudah tidak ada frame selama 1+ menit
                     if minutes_without_frame >= 1.0:
                         # Hanya show warning sekali per reconnect cycle
